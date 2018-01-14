@@ -1,0 +1,35 @@
+<dom-module id="hr-feedback-header">
+  <template>
+    <style>
+      .header {
+        width: 100%;
+        height: 60px;
+      }
+      .logo {
+        width: 50px;
+        height: 50px;
+        float: left;
+      }
+      h4 {
+        float: left;
+        margin: 10px;
+        line-height: 50px;
+      }
+      .line{
+        border: 1px solid orange;
+      }
+    </style>
+    <div class="header">
+        <img src="/client/images/logo.jpg" class="logo" />
+        <h4>[[title]]</h4>
+    </div>   
+    <div class="line"></div> 
+  </template>
+
+  <script>
+    Polymer({
+      is : 'hr-feedback-header'
+    });
+  </script>
+</dom-module>
+      

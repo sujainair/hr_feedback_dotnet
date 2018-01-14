@@ -1,0 +1,106 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="./hr-feedback-question.html">
+
+<dom-module id="hr-feedback-form">
+  <template>
+    <style>
+      .buttonContainer {
+        height: 35px;
+        margin-top: 20px;
+        width: 100%;
+        text-align: right;
+        background: orange;
+      }
+      .submit {
+        font-size: 12px;
+        margin-right: 30px;
+        text-transform: none;
+        background: white;
+        border: 1px solid grey;
+        padding: 5px;
+        margin-top: 5px;
+      }
+      .error {
+        width: 100%;
+        text-align: left;
+        color: red;
+        background: yellow;
+        font-size: 14px;
+        margin-top : 10px;
+        margin-bottom : 2px;
+      }
+    </style>
+    <template is="dom-repeat" items="{{questions}}">
+      <hr-feedback-question id="q_[[item.Id]]" question="[[item]]"></hr-feedback-question>
+    </template>
+    <template is="dom-if" if="[[showError]]">
+      <div class="error">
+        *[[errorMessage]]
+      </div>
+    </template>
+    <div class="buttonContainer">
+      <paper-button class="submit" on-click="_submitResponse">Submit</paper-button>
+    </div>
+    <iron-ajax id="getQuestions" url="/api/question" handle-as="json" on-response="_handleGetQuestions"></iron-ajax>
+    <iron-ajax id="submitResponse" url="/api/response" method="POST" body="[[responses]]" content-type="application/json" on-response="_handleResponsesPosted" on-error="_handleErrorResponse"></iron-ajax>
+  </template>
+
+  <script>
+      Polymer({
+        is : 'hr-feedback-form',
+
+        properties : {
+          showError : {
+            value : false,
+            type : Boolean
+          },
+          onSubmit : {
+            value : false,
+            type : Boolean,
+            notify : true,
+            readOnly : true
+          }
+        },
+
+        ready : function(){
+          this.$.getQuestions.generateRequest();
+        },
+
+        _handleGetQuestions: function(event){
+          this.set('questions', event.detail.response);
+        },
+
+        _submitResponse : function(){
+          var responses = [];
+          var lastIndex = this.questions.length - 1;
+          this.questions.forEach(function(question, index) {
+            this.$$("#q_" + question.Id).getResponse()
+            .then(function(response){
+              responses.push(response);
+              //Make sure all responses have been received
+              if(index === lastIndex && index === (responses.length - 1)){
+                this.set('responses', responses);
+                this.$.submitResponse.generateRequest();
+              }
+            }.bind(this))
+            .catch(function(){
+              this.set('errorMessage', 'All questions are mandatory');
+              this.set('showError', true);
+            }.bind(this));
+          }.bind(this));
+        },
+
+        _handleResponsesPosted: function(){
+          this._setOnSubmit(true);
+        },
+
+        _handleErrorResponse : function(){
+          this.set('errorMessage', 'Could not submit response, please try again.');
+          this.set('showError', true);
+        }
+
+      });
+  </script>
+</dom-module>

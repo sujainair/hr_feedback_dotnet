@@ -1,0 +1,6 @@
+{
+  "name": "hr-feedback",
+  "short_name": "hr-feedback",
+  "start_url": "/",
+  "display": "standalone"
+}

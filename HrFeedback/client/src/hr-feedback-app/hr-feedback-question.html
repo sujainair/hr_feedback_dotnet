@@ -1,0 +1,78 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+
+<dom-module id="hr-feedback-question">
+  <template>
+      <style>
+          .question {
+            padding: 20px 10px 5px 10px;
+            font-size: 16px;
+          }
+          .answer {
+            padding : 5px;
+            font-size: 14px;
+            --paper-checkbox-label-checked: {
+                font-weight: bold;
+            }
+            --paper-checkbox-size: 12px;
+            --paper-checkbox-checked-color: orange;
+            --paper-radio-button-label-checked: {
+                font-weight: bold;
+            }
+            --paper-radio-button-size: 12px;
+            --paper-radio-button-checked-color: orange;
+          }
+      </style>
+      <div id="q_[[question.Id]]" class="question">
+        [[question.QuestionString]]
+      </div>
+      <template is="dom-if" if="[[question.AnswerType]]">
+        <paper-radio-group>
+            <template is="dom-repeat" items="[[question.Answers]]">
+                <paper-radio-button id="a_[[item.Id]]" class="answer" name="[[item.Id]]">[[item.AnswerString]]</paper-radio-button><br/>
+            </template>            
+        </paper-radio-group>
+      </template>
+      <template is="dom-if" if="[[! question.AnswerType]]">
+        <template is="dom-repeat" items="[[question.Answers]]">
+            <paper-checkbox id="a_[[item.Id]]" class="answer" name="[[item.id]]">[[item.AnswerString]]</paper-checkbox><br/>
+        </template>
+      </template>
+  </template>
+
+  <script>
+      Polymer({
+        is : 'hr-feedback-question',
+        /**
+        * response is for the form {qID : int, aIDs : []}
+        * @return {Promise} With response
+        */
+        getResponse : function(){
+            return new Promise(function(resolve, reject){
+                var response = {};
+                response.qID = this.question.Id;
+                var aIDs = [];
+                var lastIndex = this.question.Answers.length - 1;
+                this.question.Answers.forEach(function(answer,index){
+                    if(this.$$("#a_" + answer.Id).checked){
+                        aIDs.push(answer.Id);
+                    }
+                    //Verify there is atleast 1 answer
+                    if(index === lastIndex && aIDs.length != 0){
+                        this.$$("#q_" + this.question.Id).style = "font-weight:normal;";
+                        response.aIDs = aIDs;
+                        resolve(response);
+                    } 
+                    //No answer selected, then reject.
+                    else if (index === lastIndex){
+                        this.$$("#q_" + this.question.Id).style = "font-weight:bold;";
+                        reject();
+                    }
+                }.bind(this));
+            }.bind(this));
+        }
+      });
+  </script>
+</dom-module>
+  

@@ -1,0 +1,62 @@
+<dom-module id="hr-feedback-responses">
+    <template>
+        <style>
+            .question {
+                padding: 20px 10px 5px 10px;
+                font-size: 16px;
+            }
+            .respondents {
+                font-size: 16px;
+                padding: 20px 10px 5px 10px;
+            }
+            .line {
+                border: 1px solid #848383;
+            }
+            .answer {
+                padding: 5px 10px 0px 30px;
+                float: left;
+                width: 50%;
+                font-size: 14px;
+            }
+            .percentage {
+                padding: 5px 10px 0px 10px;
+                float: left;
+                font-size: 14px;
+            }
+            .dottedLine {
+                border-bottom: 1px dashed black;
+                margin: 5px 10px 0px 10px;
+                width: 80%;
+            }
+        </style>
+        <div class="respondents">Number of respondents : <b>[[responseCount]]</b></div>
+        <template is="dom-repeat" items="[[responses]]">
+            <div class="question">[[item.QuestionString]]</div>
+            <div class="line"></div>
+            <template is="dom-repeat" items="[[item.ResponseAnswerOverviews]]">
+                <div style="height:20px;">
+                    <div class="answer">[[item.AnswerString]]</div>
+                    <div class="percentage">[[item.ResponsePercentage]]%</div>
+                </div>
+                <div class="dottedLine"></div>
+            </template>
+        </template>
+        <iron-ajax id="getResponses" url="/api/response" handle-as="json" on-response="_handleGetResponses"></iron-ajax>
+    </template>
+    
+    <script>
+        Polymer({
+            is : 'hr-feedback-responses',
+
+            showResponses : function(){
+                this.$.getResponses.generateRequest();
+            },
+
+            _handleGetResponses : function(event){
+                this.set('responses', event.detail.response);
+                this.set('responseCount', event.detail.response[0].ResponseCount);
+            }
+        });
+    </script>
+</dom-module>
+            

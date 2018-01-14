@@ -1,0 +1,42 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+
+<link rel="import" href="./hr-feedback-header.html">
+<link rel="import" href="./hr-feedback-form.html">
+<link rel="import" href="./hr-feedback-responses.html">
+
+<dom-module id="hr-feedback-app">
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+  </style>
+  <template>
+    <hr-feedback-header title="[[pageTitle]]"></hr-feedback-header>
+    <iron-pages selected=[[pageName]] attr-for-selected="page-name" fallback-selection="form">
+      <hr-feedback-form on-submit="{{submitDone}}" page-name="form"></hr-feedback-form>
+      <hr-feedback-responses id="responses" page-name="response"></hr-feedback-responses>
+    </iron-pages>
+  </template>
+
+  <script>
+    Polymer({
+      is : 'hr-feedback-app',
+      properties : {
+        pageTitle : {
+          value : 'HR Feedback'
+        },
+        submitDone : {
+          observer : '_submitDoneChanged'
+        }
+      },
+
+      _submitDoneChanged : function(value){
+        if(value){
+          this.set('pageName', 'response');
+          this.$.responses.showResponses();
+        }
+      }
+    });
+  </script>
+</dom-module>
